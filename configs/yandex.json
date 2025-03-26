@@ -1,0 +1,14 @@
+{
+    "provider": "custom",
+    "description": "Default Yandex CLoud prices for Intel Cascade Lake with Nvidia Tesla V100 in RUB",
+    "CPU": "0.7476",
+    "spotCPU": "0.0",
+    "RAM": "0.198",
+    "spotRAM": "0.0",
+    "GPU": "249.52",
+    "storage": "0.01033903",
+    "zoneNetworkEgress": "0.0",
+    "regionNetworkEgress": "0.0",
+    "internetNetworkEgress": "1.53",
+    "defaultLBPrice": "0.78"
+}

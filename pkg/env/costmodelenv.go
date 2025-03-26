@@ -24,6 +24,8 @@ const (
 	AzureBillingAccountEnvVar            = "AZURE_BILLING_ACCOUNT"
 	AzureDownloadBillingDataToDiskEnvVar = "AZURE_DOWNLOAD_BILLING_DATA_TO_DISK"
 
+	YandexBillingAccountIDEnvVar = "YANDEX_BILLING_ACCOUNT_ID"
+
 	KubecostNamespaceEnvVar        = "KUBECOST_NAMESPACE"
 	KubecostScrapeIntervalEnvVar   = "KUBECOST_SCRAPE_INTERVAL"
 	PodNameEnvVar                  = "POD_NAME"
@@ -339,6 +341,12 @@ func GetAzureBillingAccount() string {
 // Billing Data should be held in memory or written to disk.
 func IsAzureDownloadBillingDataToDisk() bool {
 	return env.GetBool(AzureDownloadBillingDataToDiskEnvVar, true)
+}
+
+// GetYandexBillingAccountID returns the environment variable value for
+// YandexBillingAccountIDEnvVar which is used by default while getting prices from Yandex Billing API
+func GetYandexBillingAccountID() string {
+	return env.Get(YandexBillingAccountIDEnvVar, "")
 }
 
 // GetKubecostNamespace returns the environment variable value for KubecostNamespaceEnvVar which

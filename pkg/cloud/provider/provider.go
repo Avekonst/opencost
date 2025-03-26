@@ -20,6 +20,7 @@ import (
 	"github.com/opencost/opencost/pkg/cloud/oracle"
 	"github.com/opencost/opencost/pkg/cloud/otc"
 	"github.com/opencost/opencost/pkg/cloud/scaleway"
+	"github.com/opencost/opencost/pkg/cloud/yandex"
 
 	"github.com/opencost/opencost/core/pkg/opencost"
 	"github.com/opencost/opencost/core/pkg/util"
@@ -258,6 +259,16 @@ func NewProvider(cache clustercache.ClusterCache, apiKey string, config *config.
 			ClusterAccountID: cp.accountID,
 			Config:           NewProviderConfig(config, cp.configFileName),
 		}, nil
+	case opencost.YandexProvider:
+		log.Info("Found ProviderID starting with \"yandex\", using Yandex Provider")
+		return &yandex.Yandex{
+			CSVLocation:          env.GetCSVPath(),
+			Clientset:            cache,
+			Config:               NewProviderConfig(config, cp.configFileName),
+			ClusterRegion:        cp.region,
+			ClusterAccountId:     cp.accountID,
+			ServiceAccountChecks: models.NewServiceAccountChecks(),
+		}, nil
 	case opencost.OracleProvider:
 		log.Info("Found ProviderID starting with \"oracle\", using Oracle Provider")
 		return &oracle.Oracle{
@@ -315,8 +326,9 @@ func getClusterProperties(node *clustercache.Node) clusterProperties {
 	}
 
 	// The second conditional is mainly if you're running opencost outside of GCE, say in a local environment.
-	if metadata.OnGCE() || strings.HasPrefix(providerID, "gce") {
-		log.Debug("using GCP provider")
+	// if metadata.OnGCE() || strings.HasPrefix(providerID, "gce") {
+	// TODO kaverkiev tmp fix
+	if strings.HasPrefix(providerID, "gce") {
 		cp.provider = opencost.GCPProvider
 		cp.configFileName = "gcp.json"
 		cp.projectID = gcp.ParseGCPProjectID(providerID)
@@ -349,6 +361,9 @@ func getClusterProperties(node *clustercache.Node) clusterProperties {
 		log.Debug("using OTC provider")
 		cp.provider = opencost.OTCProvider
 		cp.configFileName = "otc.json"
+	} else if strings.HasPrefix(providerID, "yandex") {
+		cp.provider = opencost.YandexProvider
+		cp.configFileName = "yandex.json"
 	}
 	// Override provider to CSV if CSVProvider is used and custom provider is not set
 	if env.IsUseCSVProvider() {

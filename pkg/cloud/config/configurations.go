@@ -11,6 +11,7 @@ import (
 	"github.com/opencost/opencost/pkg/cloud/azure"
 	"github.com/opencost/opencost/pkg/cloud/gcp"
 	"github.com/opencost/opencost/pkg/cloud/oracle"
+	"github.com/opencost/opencost/pkg/cloud/yandex"
 )
 
 // MultiCloudConfig struct is used to unmarshal cloud configs for each provider out of cloud-integration file
@@ -68,6 +69,7 @@ type Configurations struct {
 	Azure   *AzureConfigs   `json:"azure,omitempty"`
 	Alibaba *AlibabaConfigs `json:"alibaba,omitempty"`
 	OCI     *OCIConfigs     `json:"oci,omitempty"`
+	Yandex  *YandexConfigs  `json:"yc,omitempty"`
 }
 
 // UnmarshalJSON custom json unmarshalling to maintain support for MultiCloudConfig format
@@ -122,6 +124,10 @@ func (c *Configurations) Equals(that *Configurations) bool {
 		return false
 	}
 
+	if !c.Yandex.Equals(that.Yandex) {
+		return false
+	}
+
 	return true
 }
 
@@ -157,6 +163,11 @@ func (c *Configurations) Insert(keyedConfig cloud.Config) error {
 			c.OCI = &OCIConfigs{}
 		}
 		c.OCI.UsageAPI = append(c.OCI.UsageAPI, keyedConfig.(*oracle.UsageApiConfiguration))
+	case *yandex.YandexQueryConfiguration:
+		if c.Yandex == nil {
+			c.Yandex = &YandexConfigs{}
+		}
+		c.Yandex.YandexQuery = append(c.Yandex.YandexQuery, keyedConfig.(*yandex.YandexQueryConfiguration))
 	default:
 		return fmt.Errorf("Configurations: Insert: failed to insert config of type: %T", keyedConfig)
 	}
@@ -196,6 +207,12 @@ func (c *Configurations) ToSlice() []cloud.KeyedConfig {
 	if c.OCI != nil {
 		for _, usageConfig := range c.OCI.UsageAPI {
 			keyedConfigs = append(keyedConfigs, usageConfig)
+		}
+	}
+
+	if c.Yandex != nil {
+		for _, yandexQueryConfig := range c.Yandex.YandexQuery {
+			keyedConfigs = append(keyedConfigs, yandexQueryConfig)
 		}
 	}
 
@@ -333,6 +350,31 @@ func (oc *OCIConfigs) Equals(that *OCIConfigs) bool {
 	for i, thisUsageAPI := range oc.UsageAPI {
 		thatUsageAPI := that.UsageAPI[i]
 		if !thisUsageAPI.Equals(thatUsageAPI) {
+			return false
+		}
+	}
+
+	return true
+}
+
+type YandexConfigs struct {
+	YandexQuery []*yandex.YandexQueryConfiguration `json:"yandexQuery,omitempty"`
+}
+
+func (yc *YandexConfigs) Equals(that *YandexConfigs) bool {
+	if yc == nil && that == nil {
+		return true
+	}
+	if yc == nil || that == nil {
+		return false
+	}
+
+	if len(yc.YandexQuery) != len(that.YandexQuery) {
+		return false
+	}
+	for i, thisBigQuery := range yc.YandexQuery {
+		thatBigQuery := that.YandexQuery[i]
+		if !thisBigQuery.Equals(thatBigQuery) {
 			return false
 		}
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/opencost/opencost/pkg/cloud/azure"
 	"github.com/opencost/opencost/pkg/cloud/gcp"
 	"github.com/opencost/opencost/pkg/cloud/oracle"
+	"github.com/opencost/opencost/pkg/cloud/yandex"
 )
 
 const (
@@ -18,6 +19,7 @@ const (
 	BigQueryConfigType     = "bigquery"
 	AzureStorageConfigType = "azurestorage"
 	UsageApiConfigType     = "usageapi"
+	YandexQueryConfigType  = "yandexquery"
 )
 
 func ConfigTypeFromConfig(config cloud.KeyedConfig) (string, error) {
@@ -32,6 +34,8 @@ func ConfigTypeFromConfig(config cloud.KeyedConfig) (string, error) {
 		return AzureStorageConfigType, nil
 	case *oracle.UsageApiConfiguration:
 		return UsageApiConfigType, nil
+	case *yandex.YandexQueryConfiguration:
+		return YandexQueryConfigType, nil
 	}
 	return "", fmt.Errorf("failed to config type for config with key: %s, type %T", config.Key(), config)
 }
@@ -120,6 +124,8 @@ func (s *Status) UnmarshalJSON(b []byte) error {
 		config = &azure.StorageConfiguration{}
 	case UsageApiConfigType:
 		config = &oracle.UsageApiConfiguration{}
+	case YandexQueryConfigType:
+		config = &yandex.YandexQueryConfiguration{}
 	default:
 		return fmt.Errorf("Status: UnmarshalJSON: config type '%s' is not recognized", configType)
 	}

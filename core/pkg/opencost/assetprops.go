@@ -193,6 +193,8 @@ const OTCProvider = "OTC"
 // NilProvider describes unknown provider
 const NilProvider = "-"
 
+const YandexProvider = "Yandex"
+
 // Service options
 
 const KubernetesService = "Kubernetes"
